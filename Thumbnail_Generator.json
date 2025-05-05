@@ -45,8 +45,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        180,
-        220
+        0,
+        280
       ],
       "id": "44ff6b88-743d-4b1e-ac1c-aed4528a3aa8",
       "name": "Google Gemini Chat Model",
@@ -56,6 +56,92 @@
           "name": "Google Gemini(PaLM) Api account"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stability.ai/v2beta/stable-image/generate/sd3",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer sk-hs3mIalKQc1B4tek2BlOLZ9Vpcv1slJLULH2GtyJxqBBYPTb"
+            },
+            {
+              "name": "Accept",
+              "value": "image/*"
+            },
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "mode",
+              "value": "={{ $json.mode }}"
+            },
+            {
+              "name": "cfg_scale",
+              "value": "={{ $json.cfg_scale }}"
+            },
+            {
+              "name": "aspect_ratio",
+              "value": "={{ $json.aspect_ratio }}"
+            },
+            {
+              "name": "output_format",
+              "value": "={{ $json.output_format }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        0
+      ],
+      "id": "53b31145-2e9c-42a3-adea-eb6335bf7b88",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "artifacts[0].base64",
+        "binaryPropertyName": "thumbnail",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        260
+      ],
+      "id": "8ed253d5-2b0f-4d4c-bf4c-67b2115c0904",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Extract the prompt from each input item\nconst output = items.map((item) => item.json.output.trim().replace(/\"/g, \"'\"));\n\n\n\nreturn items.map(() => ({\n  json: {\n    prompt: output[0], // or use output[0] if only one prompt is expected\n    mode: \"text-to-image\",\n    cfg_scale: 4,\n    aspect_ratio:'16:9',\n    seed: 0,\n    steps: 50,\n    output_format: \"png\"\n    }\n  })\n);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "6f6d20ed-c1e4-40f1-b3d4-b2b8a520a8bf",
+      "name": "Code"
     },
     {
       "parameters": {
@@ -109,39 +195,79 @@
       "typeVersion": 4.2,
       "position": [
         820,
-        0
+        260
       ],
-      "id": "53b31145-2e9c-42a3-adea-eb6335bf7b88",
-      "name": "HTTP Request"
+      "id": "a218c17d-6647-42d1-9b19-9aa06f36e400",
+      "name": "nvidia flux"
     },
     {
       "parameters": {
-        "operation": "toBinary",
-        "sourceProperty": "artifacts[0].base64",
-        "binaryPropertyName": "thumbnail",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.convertToFile",
-      "typeVersion": 1.1,
-      "position": [
-        1060,
-        0
-      ],
-      "id": "8ed253d5-2b0f-4d4c-bf4c-67b2115c0904",
-      "name": "Convert to File"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\n// Extract the prompt from each input item\nconst output = items.map((item) => item.json.output.trim().replace(/\"/g, \"'\"));\n\n\n\nreturn items.map(() => ({\n  json: {\n    prompt: output[0], // or use output[0] if only one prompt is expected\n    mode: \"base\",\n    cfg_scale: 3.5,\n    width: 1344,\n    height: 768,\n    seed: 0,\n    steps: 50\n    }\n  })\n);\n"
+        "jsCode": "const items = $input.all();\n\n// Extract the prompt from each input item\nconst output = items.map((item) => item.json.output.trim().replace(/\"/g, \"'\"));\n\n\n\nreturn items.map(() => ({\n  json: {\n    prompt: output[0], // or use output[0] if only one prompt is expected\n    mode: \"base\",\n    cfg_scale: 3.5,\n    width: 1344,\n    height: 768,\n    seed: 0,\n    steps: 50,\n    }\n  })\n);\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         580,
+        260
+      ],
+      "id": "58435b4b-0038-4a75-8f93-4657a72828e6",
+      "name": "nvidia mapping"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('When Executed by Another Workflow').item.json.idea }}.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1PgTqlYu4RLgsa5bJ9XRDIPy3K0wB-O8L",
+          "mode": "list",
+          "cachedResultName": "AccuraCare",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1PgTqlYu4RLgsa5bJ9XRDIPy3K0wB-O8L"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1040,
         0
       ],
-      "id": "6f6d20ed-c1e4-40f1-b3d4-b2b8a520a8bf",
-      "name": "Code"
+      "id": "64b84798-2d00-4a2c-ba3c-859d29f3833f",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "r9pGggYbC1iVaqxJ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        220
+      ],
+      "id": "4ac592f4-7ce3-42d3-ab0a-df4a2d734f97",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "I7Z8FumNzBXZqSLy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -159,13 +285,7 @@
     },
     "Google Gemini Chat Model": {
       "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "AI Agent": {
@@ -183,7 +303,7 @@
       "main": [
         [
           {
-            "node": "Convert to File",
+            "node": "Google Drive",
             "type": "main",
             "index": 0
           }
@@ -205,13 +325,46 @@
           }
         ]
       ]
+    },
+    "nvidia mapping": {
+      "main": [
+        [
+          {
+            "node": "nvidia flux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nvidia flux": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "52ed48bd-edc3-46a6-9c2f-0080d596a8e9",
+  "versionId": "2c6265f0-e4c0-444a-b302-a1a6c7ec5cb7",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
