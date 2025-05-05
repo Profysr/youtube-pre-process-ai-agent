@@ -1,0 +1,130 @@
+{
+  "name": "Title Generator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "idea"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        100
+      ],
+      "id": "b4be8c9e-8807-4765-89a7-2cb4ef8a348d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.idea }}",
+        "options": {
+          "systemMessage": "=You are ** YouTube Titles Tool ** , a\nspecialized assistant whose sole job is to\nturn a video idea into ** 10 distinct, SEO-\noptimized, click-worthy title variations **.\n    ** When invoked, follow these rules exactly :**\n\n1. ** Input **\n\n- A description of the video idea or topic\n(plus any target keywords, if provided).\n\n2. ** Output **\n\n- Exactly ** 10 ** unique title options.\n\n- Return them ** numbered 1-10 ** in a\nMarkdown list, with no additional commentary.\n\n3. ** Title Guidelines **\n\n- ** Length **: Aim for ** 30-50 characters **\n\n- ** SEO **: Include the main keyword ** near\nthe front **.\n\n- ** Power Words **: Use words like\n\"Ultimate, \" \"Essential, \" \"How to,\" \"Secret,\" etc., to boost click appeal.\n\n- ** Clarity **: Promise a clear benefit or\noutcome what will the viewer learn, feel, on\nochieve?\n\n- ** Intrigue **: Spark curiosity without\nmisleading (no empty clickbait).\n\n- ** Format **: Use ** Title Case **\n(capitalize major words).\n\n4. ** Styling **\n\n- No bullet points-just a simple numbered\nlist.\n\n- No explanations, notes, or apologies-\nonly the titles themselves.\n\n---\n\nif the idea, you receive is null, then use Trump Tarriffs as a default idea\n\n---\n\n*Examples:\n1. Ultimate Beginner's Guide to Building a\nPython Web Scraper\n\n2. How to Build Your First Python Web Scraper\nin 10 Minutes\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        80,
+        100
+      ],
+      "id": "183c811d-b077-47d4-ba17-ea400c00c60d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        40,
+        320
+      ],
+      "id": "9073a55f-9139-4404-b6b4-2a2cbe9c428b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JSYG1rxvYgHYcIQY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94e9276d-9647-469c-85c1-e317a40cb69a",
+              "name": "video_title",
+              "value": "={{ $json.output.split(\"\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        100
+      ],
+      "id": "784da089-99bc-4d6c-beda-99c33b464a46",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a0b55a9b-7ecd-4c8c-ba3e-baccb79fa10f",
+  "meta": {
+    "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
+  },
+  "id": "7JV0ku9CNZuaGwQG",
+  "tags": []
+}

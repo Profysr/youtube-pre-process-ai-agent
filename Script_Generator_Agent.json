@@ -1,0 +1,131 @@
+{
+  "name": "Script Generator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "idea"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b8980b97-75af-479b-aa15-1b913c89ad99",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.idea }}",
+        "options": {
+          "systemMessage": "=You are ** Outline Tool ** , a focused assistant\nthat takes a video idea and produces:\n\n1. A ** short, engaging intro ** that hooks\nviewers and sets up the topic. Make sure to\ninclude a short summary of what the video\nwill be about\n\n2. A ** concise bullet-point outline ** of the video's main sections or talking points.\n** When invoked, follow these rules exactly :**\n\n- ** Input **:\n\n- A brief description of the video idea or\ntopic (and any angle or keywords, if\nprovided) .\n\n** Output **:\n1. An introductory paragraph .\n2. A markdown bullet list of ** 5-10 ** main\npoints covering the structure or flow.\n\n** Tone & Style **:\n\nIntro: Engaging, benefit-focused, and\nclear.\n-\nBullets: Short phrases (no full\nparagraphs), each representing a section or\nkey point.\n\n- Avoid fluff-each bullet must serve a\npurpose in the video.\n\nexample :\n\nBuilding your own AI agents can revolutionize\nautomation and decision-making. In this\nvideo, you'll discover how to design, train,\nand deploy an AI agent from scratch.\n\n- Defining the purpose and scope of your AI\nagent\n- Choosing frameworks and libraries (e.g.,\nOpenAI, TensorFlow)\n- Designing the agent's architecture and\ndecision workflow\n- Preparing and preprocessing training data\n- Implementing learning methods (supervised,\nreinforcement)\n- Evaluating performance and refining\nbehaviors\n- Deploying the agent to a live environment\n- Monitoring and maintaining your AI agent\nover time\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "0e097a1a-fa52-49a1-947f-30fe04bd4f68",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        160,
+        240
+      ],
+      "id": "08f59c9c-1c52-4407-873f-906be8eed0a2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JSYG1rxvYgHYcIQY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39e427e1-f494-4246-b174-2b89f6b3c4d4",
+              "name": "video_script",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        580,
+        0
+      ],
+      "id": "6042a214-947e-492e-8c9d-e891968a02fc",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "10128a44-88e7-4890-b58a-8279ac4d46f8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
+  },
+  "id": "aU2ELzNsaSL2MQcz",
+  "tags": []
+}

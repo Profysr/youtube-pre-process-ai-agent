@@ -1,0 +1,129 @@
+{
+  "name": "Research Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "search_query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d12c8cc4-7ff1-490d-b42d-e417da8cd954",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.search_query }}",
+        "options": {
+          "systemMessage": "=You are a web search expert. Whatever the search query you receive, perform a detailed search on that.\n\nThe goal is to gather as much relevant information as possible to make it easy for the user to make a Youtube video for a given topic.\n\nBrowse the web multiple time until you finish with enough information.\n\nFormat your answer as four detailed paragraphs\n\n----\n\n\nAt first run, Gemini chatBot but when you received output from it, then run the serp api to gather data\n\n----\nHere the topic you need to research:  {{ $json.search_query }}\n\n(if you fail to receive the idea, just perform web search on Trump Tariffs by defualt)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "49f586b9-5421-49d4-98cd-b73fdf5963e2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        180,
+        220
+      ],
+      "id": "7c8b9ae8-7779-4f4d-9ffe-adee57e624f6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JSYG1rxvYgHYcIQY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "hl": "en"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        380,
+        220
+      ],
+      "id": "bca2a1f1-e351-4b98-88c5-753c735af891",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "9c5By5NIek0AS0eQ",
+          "name": "SerpAPI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d5887680-ca96-49de-b364-89f0e48033f3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
+  },
+  "id": "cMYbuUwrXSX3eqza",
+  "tags": []
+}

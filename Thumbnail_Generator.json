@@ -1,0 +1,221 @@
+{
+  "name": "Thumbnail Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "idea"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3276622c-0c99-47b1-9d06-0cb3ed6d0307",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.idea }}",
+        "options": {
+          "systemMessage": "=You are ** Thumbnail Agent ** , a focused\nassistant that transforms a video idea into a\nprecise image-generation prompt for creating\na YouTube thumbnail.\n\n  ** When invoked, follow these rules exactly: **\n\n1. ** Input **\n\n- A short video idea or topic description\n(plus any angle or target keywords).\n\n2. ** Output **\n\n- A single, detailed prompt optimized for\na text-to-image generator.\n\n- Return ** only ** the prompt-no\nexplanations or extra text.\n\n3. ** Prompt Requirements **\n\n- ** Subject & Focus: ** Clearly name the\nmain visual element (e.g., person, object,\nscene) .\n\n- ** Action & Emotion :** Specify what's\nhappening and the desired mood or energy.\n\n- ** Composition & Layout: ** Mention\nframing (close-up, mid-shot), perspective\n(overhead, eye-level), and placement of key\nelements.\n\n- ** Text Overlay :** Include any headline\nor call-to-action text to appear on the\nthumbnail, with approximate placement\n(top/bottom/center) .\n\n- ** Style & Aesthetic :** Define art style\n(realistic, cartoon, 3D render), color\npalette (bold contrasts, bright saturations),\nand lighting (high-contrast, soft glow).\n\n- ** Readability & Impact :** Ensure the\nsubject and text will stand out at small\nsizes.\n\n4. ** Formatting & Tone **\n\n- Write in clear, descriptive English as a\nsingle paragraph.\n\n- Use imperative, vivid language (\"Show, \"\n\"Feature,\" \"Highlight\").\n\n- Write in clear, descriptive English as a\nsingle paragraph.\n\n- Use imperative, vivid language (\"Show,\"\n\"Feature,\" \"Highlight\").\n\n- Avoid technical jargon-focus on visual\ndetails.\n\n*Example:\n\nShow a dynamic, close-up view of a humanoid\nrobot holding a glowing brain-shaped circuit,\nset against a dark, futuristic cityscape.\nPlace bold, uppercase text \"BUILD AI AGENTS\"\nat the top in neon blue with a subtle drop\nshadow, and smaller \"Step-by-Step Guide\" at\nthe bottom. Use a high-contrast, cyberpunk\ncolor palette with glowing highlights and\ndramatic rim lighting to make the robot and\ntext pop on small screens."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "5ce01e49-f419-41c0-a5b8-f1a4711ac4ad",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        180,
+        220
+      ],
+      "id": "44ff6b88-743d-4b1e-ac1c-aed4528a3aa8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JSYG1rxvYgHYcIQY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-dev",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "mode",
+              "value": "={{ $json.mode }}"
+            },
+            {
+              "name": "cfg_scale",
+              "value": "={{ $json.cfg_scale }}"
+            },
+            {
+              "name": "width",
+              "value": "={{ $json.width }}"
+            },
+            {
+              "name": "height",
+              "value": "={{ $json.height }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        0
+      ],
+      "id": "53b31145-2e9c-42a3-adea-eb6335bf7b88",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "artifacts[0].base64",
+        "binaryPropertyName": "thumbnail",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        0
+      ],
+      "id": "8ed253d5-2b0f-4d4c-bf4c-67b2115c0904",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Extract the prompt from each input item\nconst output = items.map((item) => item.json.output.trim().replace(/\"/g, \"'\"));\n\n\n\nreturn items.map(() => ({\n  json: {\n    prompt: output[0], // or use output[0] if only one prompt is expected\n    mode: \"base\",\n    cfg_scale: 3.5,\n    width: 1344,\n    height: 768,\n    seed: 0,\n    steps: 50\n    }\n  })\n);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "6f6d20ed-c1e4-40f1-b3d4-b2b8a520a8bf",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "52ed48bd-edc3-46a6-9c2f-0080d596a8e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
+  },
+  "id": "7TONYY6NQkNkc9py",
+  "tags": []
+}

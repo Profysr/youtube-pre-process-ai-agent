@@ -1,0 +1,368 @@
+{
+  "name": "David Ondrej Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json[\"Write a message\"] }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant that helps the users to automate their Youtube pre-production process\n\nAlways follow this process:\n\nSTEP 1: Call Research Agent\n\nSTEP 2: Call Thumbnial Generator\n\nSTEP 3: Call the Title Agent\n\nSTEP 4: Call the Script Agent\n\n----\n\nfinally, give a concise and complete response to the user, giving him the full completed and pre-production for his Youtube video\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2904f73b-d617-42e1-9bc3-52c0c9c5fefb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "formTitle": "Message ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Write a message",
+              "placeholder": "Hello World",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "14cbaab9-38a5-451b-8115-79fd13336284",
+      "name": "On form submission",
+      "webhookId": "066b071d-2ca5-49e9-b952-fa56959a5908"
+    },
+    {
+      "parameters": {
+        "description": "This tool calls an Ai agent that performs detailed and web thorough search for our video idea",
+        "workflowId": {
+          "__rl": true,
+          "value": "cMYbuUwrXSX3eqza",
+          "mode": "list",
+          "cachedResultName": "Research Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "search_query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('search_query', `A single paragraph clearly describing the video idea and the agent should look for`, 'string') }}"
+          },
+          "matchingColumns": [
+            "search_query"
+          ],
+          "schema": [
+            {
+              "id": "search_query",
+              "displayName": "search_query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        300
+      ],
+      "id": "e0b84d62-7b48-4fba-9d7b-5d30eee52645",
+      "name": "Research Agent"
+    },
+    {
+      "parameters": {
+        "description": "This tool calls an Ai agent that generates thumbnail for our video idea and store it in the google drive",
+        "workflowId": {
+          "__rl": true,
+          "value": "7TONYY6NQkNkc9py",
+          "mode": "list",
+          "cachedResultName": "Thumbnail Generator"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idea": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('idea', `a clear one sentence description of the video idea and what the main promise of the video will be - this will be turned into a clickable Youtube Video thumbnail`, 'string') }}"
+          },
+          "matchingColumns": [
+            "idea"
+          ],
+          "schema": [
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        300
+      ],
+      "id": "faec8670-f4d5-4152-b768-2f1a5406edb2",
+      "name": "Thumbnail Agent"
+    },
+    {
+      "parameters": {
+        "description": "This tool calls a specialized AI agent that will return 10 optimized Youtube video titles ",
+        "workflowId": {
+          "__rl": true,
+          "value": "7JV0ku9CNZuaGwQG",
+          "mode": "list",
+          "cachedResultName": "Title Generator Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idea": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('idea', `A clear one sentence description of what the video idea is about`, 'string') }}"
+          },
+          "matchingColumns": [
+            "idea"
+          ],
+          "schema": [
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        300
+      ],
+      "id": "4dba28ce-f7e2-4bb4-84a5-83fd9a94b760",
+      "name": "Title Agent"
+    },
+    {
+      "parameters": {
+        "description": "this tool will call the script agent, which will write the Intro, Outline, and talking points for the Youtube video",
+        "workflowId": {
+          "__rl": true,
+          "value": "aU2ELzNsaSL2MQcz",
+          "mode": "list",
+          "cachedResultName": "Script Generator Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idea": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('idea', `a clear one-sentence paragraph description of what the video is about in terms of actual content and the script`, 'string') }}"
+          },
+          "matchingColumns": [
+            "idea"
+          ],
+          "schema": [
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        300
+      ],
+      "id": "7fb41948-ca88-4af6-858f-79f8e508bf1f",
+      "name": "Script Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "bilalahmad072@proton.me",
+        "subject": "={{ $('On form submission').item.json['Write a message'].toTitleCase() }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        0
+      ],
+      "id": "6bb5ba0f-5819-4451-9fa8-344871f698d0",
+      "name": "Gmail",
+      "webhookId": "8a17faec-91f8-4e45-9a69-60991a99a266",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "55W1ZydMYtUpctci",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Agents",
+        "height": 220,
+        "width": 660,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        220
+      ],
+      "id": "df0daafa-91fb-4d8e-a46f-60eb1b0cd235",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        200
+      ],
+      "id": "dd680c85-e038-458f-9ae6-c7041e12eebd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "I7Z8FumNzBXZqSLy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thumbnail Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "613b5c4a-b8b4-4507-a19e-415a09d24f7b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b739a6513bb1ec331e6774e59ffb5114c275fe72d5a083c583f10c4436bcc94"
+  },
+  "id": "2QlrCXY9Mw7Arn7r",
+  "tags": []
+}
